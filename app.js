@@ -14,4 +14,5 @@ app.get('/', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`server listen port ${PORT}`);
+  console.log(`server connect to ${MONGO_URL}`);
 });
