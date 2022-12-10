@@ -6,11 +6,15 @@ const { PORT = 3000, MONGO_URL = 'mongodb://localhost:27017/mestodb' } = process
 
 const app = express();
 
-mongoose.connect(MONGO_URL);
+const router = require('./routes');
+
+mongoose.connect('mongodb://localhost:27017/mestodb');
 
 app.get('/', (req, res) => {
   res.send('hello!');
 });
+
+app.use(router);
 
 app.listen(PORT, () => {
   console.log(`server listen port ${PORT}`);
