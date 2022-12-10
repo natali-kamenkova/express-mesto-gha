@@ -13,11 +13,8 @@ module.exports.getUserById = (req, res) => {
 };
 
 module.exports.createUser = (req, res) => {
-  User.create({
-    name: req.body.name,
-    about: req.body.about,
-    avatar: req.body.avatar
-  })
+  const { name, about, avatar } = req.body;
+  User.create({ name, about, avatar })
     .then((user) => res.status(201).send(user))
     .catch((err) => res.status(500).send({ message: err.message }));
 };
