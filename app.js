@@ -1,4 +1,5 @@
 const express = require('express');
+
 const mongoose = require('mongoose');
 
 const { PORT = 3000, MONGO_URL = 'mongodb://localhost:27017/mestodb' } = process.env;
@@ -11,4 +12,6 @@ app.get('/', (req, res) => {
   res.send('hello!');
 });
 
-app.listen(PORT, () => { console.log(`server listen port ${PORT}`); });
+app.listen(PORT, () => {
+  console.log(`server listen port ${PORT}`);
+});
