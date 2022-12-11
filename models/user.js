@@ -1,3 +1,4 @@
+const validator = require('validator');
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({ // схема пользователя
@@ -16,6 +17,10 @@ const userSchema = new mongoose.Schema({ // схема пользователя
   avatar: { // ссылка на аватарку, строка, обязательное поле
     type: String,
     required: true,
+    validate: {
+      validator: (v) => validator.isURL(v),
+      message: 'Ссылка должна быть валидной',
+    },
   },
 });
 
