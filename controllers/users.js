@@ -7,11 +7,14 @@ const {
   CREATED,
 } = require('../constants');
 
+// получение всех пользователей
 module.exports.getUsers = (req, res) => {
   User.find({})
     .then((users) => res.status(OK).send(users))
     .catch(() => res.status(SERVER_ERROR).send({ message: 'Ошибка сервера' }));
 };
+
+// получение пользователя по Id
 module.exports.getUserById = (req, res) => {
   const { userId } = req.params;
   User.findById(userId)
@@ -28,6 +31,7 @@ module.exports.getUserById = (req, res) => {
     });
 };
 
+// создание пользователя
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
@@ -40,6 +44,7 @@ module.exports.createUser = (req, res) => {
     });
 };
 
+// изменение профиля
 module.exports.updateProfile = (req, res) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
@@ -56,6 +61,7 @@ module.exports.updateProfile = (req, res) => {
     });
 };
 
+// изменение аватара
 module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
