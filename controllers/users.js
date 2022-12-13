@@ -1,9 +1,16 @@
 const User = require('../models/user');
+const {
+  OK,
+  BAD_REQUES,
+  NOT_FOUND,
+  SERVER_ERROR,
+  CREATED,
+} = require('../constants');
 
 module.exports.getUsers = (req, res) => {
   User.find({})
-    .then((users) => res.status(200).send(users))
-    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
+    .then((users) => res.status(OK).send(users))
+    .catch(() => res.status(SERVER_ERROR).send({ message: 'Ошибка сервера' }));
 };
 module.exports.getUserById = (req, res) => {
   const { userId } = req.params;
@@ -12,24 +19,24 @@ module.exports.getUserById = (req, res) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.message === 'NotFound') {
-        return res.status(404).send({ message: 'Пользователь не найден' });
+        return res.status(NOT_FOUND).send({ message: 'Пользователь не найден' });
       }
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Не валидый id' });
+        return res.status(BAD_REQUES).send({ message: 'Переданы некорректные данные' });
       }
-      return res.status(500).send({ message: 'Ошибка сервера' });
+      return res.status(SERVER_ERROR).send({ message: 'Ошибка сервера' });
     });
 };
 
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
-    .then((user) => res.status(201).send(user))
+    .then((user) => res.status(CREATED).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: err.message });
+        return res.status(BAD_REQUES).send({ message: 'Переданы некорректные данные' });
       }
-      return res.status(500).send({ message: 'Ошибка сервера' });
+      return res.status(SERVER_ERROR).send({ message: 'Ошибка сервера' });
     });
 };
 
@@ -40,12 +47,12 @@ module.exports.updateProfile = (req, res) => {
     .then((user) => { res.send({ name: user.name, about: user.about }); })
     .catch((err) => {
       if (err.message === 'NotFound') {
-        return res.status(404).send({ message: 'Пользователь с таким id не найден' });
+        return res.status(NOT_FOUND).send({ message: 'Пользователь с таким id не найден' });
       }
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: err.message });
+        return res.status(BAD_REQUES).send({ message: 'Переданы некорректные данные' });
       }
-      return res.status(500).send({ message: 'Ошибка сервера' });
+      return res.status(SERVER_ERROR).send({ message: 'Ошибка сервера' });
     });
 };
 
@@ -56,11 +63,11 @@ module.exports.updateAvatar = (req, res) => {
     .then((user) => { res.send(user); })
     .catch((err) => {
       if (err.message === 'NotFound') {
-        return res.status(404).send({ message: 'Пользователь с таким id не найден' });
+        return res.status(NOT_FOUND).send({ message: 'Пользователь с таким id не найден' });
       }
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: err.message });
+        return res.status(BAD_REQUES).send({ message: 'Переданы некорректные данные' });
       }
-      return res.status(500).send({ message: 'Ошибка сервера' });
+      return res.status(SERVER_ERROR).send({ message: 'Ошибка сервера' });
     });
 };

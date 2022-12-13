@@ -28,9 +28,5 @@ async function connect() {
 }
 // _id: 63959cdea6ddf98a586a85c1
 
-app.get('/', (req, res) => {
-  res.send('hello!');
-});
-
 app.use(router);
 connect();
