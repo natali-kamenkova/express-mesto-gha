@@ -1,10 +1,9 @@
 const User = require('../models/user');
 const {
   OK,
-  BAD_REQUES,
+  BAD_REQUEST,
   NOT_FOUND,
   SERVER_ERROR,
-  CREATED,
 } = require('../constants');
 
 // получение всех пользователей
@@ -25,7 +24,7 @@ module.exports.getUserById = (req, res) => {
         return res.status(NOT_FOUND).send({ message: 'Пользователь не найден' });
       }
       if (err.name === 'CastError') {
-        return res.status(BAD_REQUES).send({ message: 'Переданы некорректные данные' });
+        return res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
       }
       return res.status(SERVER_ERROR).send({ message: 'Ошибка сервера' });
     });
@@ -35,10 +34,10 @@ module.exports.getUserById = (req, res) => {
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
-    .then((user) => res.status(CREATED).send(user))
+    .then((user) => res.status(201).send(user))
     .catch((err) => {
-      if ((err.name === 'ValidationError' || err.name === 'CastError' || err.name === 'BadRequest')) {
-        return res.status(BAD_REQUES).send({ message: 'Переданы некорректные данные' });
+      if (err.name === 'ValidationError') {
+        return res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
       }
       return res.status(SERVER_ERROR).send({ message: 'Ошибка сервера' });
     });
@@ -55,7 +54,7 @@ module.exports.updateProfile = (req, res) => {
         return res.status(NOT_FOUND).send({ message: 'Пользователь с таким id не найден' });
       }
       if (err.name === 'ValidationError') {
-        return res.status(BAD_REQUES).send({ message: 'Переданы некорректные данные' });
+        return res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
       }
       return res.status(SERVER_ERROR).send({ message: 'Ошибка сервера' });
     });
@@ -72,7 +71,7 @@ module.exports.updateAvatar = (req, res) => {
         return res.status(NOT_FOUND).send({ message: 'Пользователь с таким id не найден' });
       }
       if (err.name === 'ValidationError') {
-        return res.status(BAD_REQUES).send({ message: 'Переданы некорректные данные' });
+        return res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
       }
       return res.status(SERVER_ERROR).send({ message: 'Ошибка сервера' });
     });
