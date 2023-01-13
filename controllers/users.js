@@ -56,7 +56,9 @@ module.exports.createUser = (req, res) => {
     res.status(BAD_REQUEST).send({ message: 'Не передан email или пароль' });
   }
   bcrypt.hash(password, SALT)
-    .then((hash) => User.create({ name, about, avatar, email, password: hash }))
+    .then((hash) => User.create({
+      name, about, avatar, email, password: hash,
+    }))
     .then((user) => res.status(CREATED).send({
       _id: user._id,
       name: user.name,
