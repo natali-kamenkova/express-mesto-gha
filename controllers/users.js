@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const {
   OK,
@@ -9,6 +10,8 @@ const {
   CREATED,
   MONGO_DUPLICATE_ERROR_CODE,
 } = require('../constants');
+
+const { JWT_SECRET = 'dev-key' } = process.env;
 
 // получение всех пользователей
 module.exports.getUsers = (req, res) => {
@@ -33,19 +36,6 @@ module.exports.getUserById = (req, res) => {
       return res.status(SERVER_ERROR).send({ message: 'Ошибка сервера' });
     });
 };
-/*
-// создание пользователя
-module.exports.createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
-    .then((user) => res.status(201).send(user))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
-      }
-      return res.status(SERVER_ERROR).send({ message: 'Ошибка сервера' });
-    });
-}; */
 
 // создание пользователя
 module.exports.createUser = (req, res) => {
@@ -77,31 +67,7 @@ module.exports.createUser = (req, res) => {
       return res.status(SERVER_ERROR).send({ message: 'Ошибка сервера' });
     });
 };
-/*
-module.exports.createUser = (req, res) => {
-  const { email, password, name, about, avatar } = req.body;
-  bcrypt
-    .hash(password, 10)
-    .then((hash) => User.create({ email, password: hash, name, about, avatar }))
-    .then((user) =>
-      res.send({
-        email: user.email,
-        name: user.name,
-        about: user.about,
-        avatar: user.avatar,
-        _id: user._id,
-        __v: user.__v,
-      }))
-    .catch((error) => {
-      if (error.code === 11000) {
-        next(new Conflict('Пользователь с таким email уже существует'));
-      } else if (error.name === 'ValidationError') {
-        next(new BadRequest(`${error.message.split('-')[1]}`));
-      } else {
-        next(error);
-      }
-    });
-} */
+
 // изменение профиля
 module.exports.updateProfile = (req, res) => {
   const { name, about } = req.body;
@@ -134,4 +100,31 @@ module.exports.updateAvatar = (req, res) => {
       }
       return res.status(SERVER_ERROR).send({ message: 'Ошибка сервера' });
     });
+};
+module.exports.login = async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(401).send({ message: 'Не правильный email или password' });
+  }
+  try {
+    const user = await User.findOne({ email })
+      .select('+password');
+    if (!user) {
+      return res.status(401).send({ message: 'Не правильный email или password' });
+    }
+    const matched = await bcrypt.compare(password, user.password);
+    if (!matched) {
+      return res.status(401).send({ message: 'Не правильный email или password' });
+    }
+    const token = jwt.sign( // создание токена если была произведена успешная авторизация
+      { _id: user._id },
+      JWT_SECRET,
+      { expiresIn: '7d' }, // токен будет просрочен через неделю после создания
+    );
+    return res.status(200).send({ message: 'Добро пожаловать', token });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ message: 'Не удалось авторизоваться' });
+  }
+  return res.status(200).send({ message: 'Добро пожаловать' });
 };
