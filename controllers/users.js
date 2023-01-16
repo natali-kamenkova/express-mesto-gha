@@ -121,10 +121,10 @@ module.exports.login = async (req, res) => {
       JWT_SECRET,
       { expiresIn: '7d' }, // токен будет просрочен через неделю после создания
     );
-    return res.status(200).send({ message: 'Добро пожаловать', token });
+    return res.status(OK).send({ message: 'Добро пожаловать', token });
   } catch (error) {
     console.log(error);
     res.status(500).send({ message: 'Не удалось авторизоваться' });
   }
-  return res.status(200).send({ message: 'Добро пожаловать' });
+  return res.status(OK).send({ message: 'Добро пожаловать' });
 };

@@ -7,6 +7,9 @@ const { PORT = 3000, MONGO_URL = 'mongodb://localhost:27017/mestodb' } = process
 
 const app = express();
 require('dotenv').config();
+const { createUser, login } = require('./controllers/users');
+
+app.use(express.json());
 
 app.use((req, res, next) => { // временное решение
   req.user = {
@@ -15,6 +18,8 @@ app.use((req, res, next) => { // временное решение
 
   next();
 });
+app.post('/signin', login);
+app.post('/signup', createUser);
 
 async function connect() {
   try {
