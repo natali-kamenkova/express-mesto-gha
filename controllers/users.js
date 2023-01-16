@@ -1,49 +1,68 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+
+const NotFound = require('../errors/NotFound'); // 404
+const BadRequest = require('../errors/BadRequest'); // 400
+const ConflictError = require('../errors/ConflictError'); // 409
+
 const {
   OK,
-  BAD_REQUEST,
-  NOT_FOUND,
-  SERVER_ERROR,
   SALT,
   CREATED,
   MONGO_DUPLICATE_ERROR_CODE,
 } = require('../constants');
+const NotAuthError = require('../errors/NotAuthError');
 
 const { JWT_SECRET = 'dev-key' } = process.env;
 
 // получение всех пользователей
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.status(OK).send(users))
-    .catch(() => res.status(SERVER_ERROR).send({ message: 'Ошибка сервера' }));
+    .then((users) => res.send(users))
+    .catch(next);
+};
+
+// текущий пользователь
+module.exports.getCurrentUser = (req, res, next) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        throw new NotFound('Пользователь не найден');
+      }
+      res.status(OK).send(user);
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(BadRequest('Переданы некорректные данные'));
+      } else if (err.message === 'NotFound') {
+        next(new NotFound('Пользователь не найден'));
+      } else next(err);
+    });
 };
 
 // получение пользователя по Id
-module.exports.getUserById = (req, res) => {
+module.exports.getUserById = (req, res, next) => {
   const { userId } = req.params;
   User.findById(userId)
-    .orFail(new Error('NotFound'))
+    .orFail(new NotFound('Пользователь не найден'))
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.message === 'NotFound') {
-        return res.status(NOT_FOUND).send({ message: 'Пользователь не найден' });
-      }
       if (err.name === 'CastError') {
-        return res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
+        next(new BadRequest('Передан некорретный Id'));
+        return;
       }
-      return res.status(SERVER_ERROR).send({ message: 'Ошибка сервера' });
+      next(err);
     });
 };
 
 // создание пользователя
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
   if (!req.body.email || !req.body.password) {
-    res.status(BAD_REQUEST).send({ message: 'Не передан email или пароль' });
+    next(new BadRequest('Переданы некорректные данные'));
   }
   bcrypt.hash(password, SALT)
     .then((hash) => User.create({
@@ -58,73 +77,73 @@ module.exports.createUser = (req, res) => {
 
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        return res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
+        next(new BadRequest('Переданы некорректные данные'));
       }
       if (error.code === MONGO_DUPLICATE_ERROR_CODE) {
-        return res.status(409).send({ message: 'Пользователь с таким email уже существует' });
+        next(new ConflictError('Пользователь с таким email уже существует'));
       }
       console.log(error.name);
-      return res.status(SERVER_ERROR).send({ message: 'Ошибка сервера' });
+      next(error);
     });
 };
 
 // изменение профиля
-module.exports.updateProfile = (req, res) => {
+module.exports.updateProfile = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
-    .orFail(new Error('NotFound'))
+    .orFail(new NotFound('Пользователь не найден'))
     .then((user) => { res.send({ name: user.name, about: user.about }); })
     .catch((err) => {
-      if (err.message === 'NotFound') {
-        return res.status(NOT_FOUND).send({ message: 'Пользователь с таким id не найден' });
-      }
       if (err.name === 'ValidationError') {
-        return res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
+        next(new BadRequest('Переданы некорректные данные'));
+      } else {
+        next(err); // создаст 500
       }
-      return res.status(SERVER_ERROR).send({ message: 'Ошибка сервера' });
     });
 };
 
 // изменение аватара
-module.exports.updateAvatar = (req, res) => {
+module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
-    .orFail(new Error('NotFound'))
+    .orFail(new NotFound('Пользователь не найден'))
     .then((user) => { res.send(user); })
     .catch((err) => {
-      if (err.message === 'NotFound') {
-        return res.status(NOT_FOUND).send({ message: 'Пользователь с таким id не найден' });
-      }
       if (err.name === 'ValidationError') {
-        return res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
+        next(new BadRequest('Переданы некорректные данные'));
+      } else {
+        next(err); // создаст 500
       }
-      return res.status(SERVER_ERROR).send({ message: 'Ошибка сервера' });
     });
 };
-module.exports.login = async (req, res) => {
+
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
-  if (!email || !password) {
-    return res.status(401).send({ message: 'Не правильный email или password' });
-  }
-  try {
-    const user = await User.findOne({ email })
-      .select('+password');
-    if (!user) {
-      return res.status(401).send({ message: 'Не правильный email или password' });
-    }
-    const matched = await bcrypt.compare(password, user.password);
-    if (!matched) {
-      return res.status(401).send({ message: 'Не правильный email или password' });
-    }
-    const token = jwt.sign( // создание токена если была произведена успешная авторизация
-      { _id: user._id },
-      JWT_SECRET,
-      { expiresIn: '7d' }, // токен будет просрочен через неделю после создания
-    );
-    return res.status(OK).send({ message: 'Добро пожаловать', token });
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({ message: 'Не удалось авторизоваться' });
-  }
-  return res.status(OK).send({ message: 'Добро пожаловать' });
+  User.findOne({ email })
+    .select('+password')
+    .then((user) => {
+      if (!user) {
+        throw new NotAuthError('Неправильные почта или пароль');
+      }
+      return bcrypt
+        .compare(password, user.password)
+        .then((matched) => {
+          if (!matched) {
+            throw new NotAuthError('Неправильные почта или пароль');
+          }
+          return user;
+        })
+        .then(() => {
+          // создадим токен
+          const token = jwt.sign(
+            { _id: user._id },
+            JWT_SECRET,
+            { expiresIn: '7d' },
+          );
+          // вернём токен
+          res.send({ token });
+        })
+        .catch(next);
+    })
+    .catch(next);
 };

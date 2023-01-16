@@ -2,12 +2,12 @@ const express = require('express');
 
 const mongoose = require('mongoose');
 const router = require('./routes');
+const { createUser, login } = require('./controllers/users');
 
 const { PORT = 3000, MONGO_URL = 'mongodb://localhost:27017/mestodb' } = process.env;
 
 const app = express();
 require('dotenv').config();
-const { createUser, login } = require('./controllers/users');
 
 app.use(express.json());
 
