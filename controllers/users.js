@@ -12,7 +12,7 @@ const {
   CREATED,
   MONGO_DUPLICATE_ERROR_CODE,
 } = require('../constants');
-const NotAuthError = require('../errors/NotAuthError');
+// const NotAuthError = require('../errors/NotAuthError');
 
 const { JWT_SECRET = 'dev-key' } = process.env;
 
@@ -117,7 +117,7 @@ module.exports.updateAvatar = (req, res, next) => {
       }
     });
 };
-
+/*
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   User.findOne({ email })
@@ -145,6 +145,18 @@ module.exports.login = (req, res, next) => {
           res.send({ token });
         })
         .catch(next);
+    })
+    .catch(next);
+}; */
+module.exports.login = (req, res, next) => {
+  const { email, password } = req.body;
+  return User
+    .findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+        expiresIn: '7d',
+      });
+      res.send({ token });
     })
     .catch(next);
 };

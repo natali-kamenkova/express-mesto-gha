@@ -11,10 +11,6 @@ const validationUrl = (url) => {
   throw new BadRequest('Некорректный адрес URL');
 };
 
-
-
-
-
 module.exports.validationLogin = celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
