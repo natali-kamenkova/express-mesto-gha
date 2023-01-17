@@ -1,5 +1,20 @@
 const { celebrate, Joi } = require('celebrate');
 
+const isUrl = require('validator/lib/isURL');
+const BadRequest = require('../errors/BadRequest'); // 400
+// валидания ссылок
+const validationUrl = (url) => {
+  const validate = isUrl(url);
+  if (validate) {
+    return url;
+  }
+  throw new BadRequest('Некорректный адрес URL');
+};
+
+
+
+
+
 module.exports.validationLogin = celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
@@ -42,9 +57,14 @@ module.exports.validationUpdateProfile = celebrate({
     about: Joi.string().required().min(2).max(30),
   }),
 });
-
+/*
 module.exports.validationAvatar = celebrate({
   body: Joi.object().keys({
     avatar: Joi.string().required().pattern(/http[s]?:\/\/(?:www\.)?([\w-]+\.)+\/?\S*$/),
+  }),
+}); */
+module.exports.validationAvatar = celebrate({
+  body: Joi.object().keys({
+    avatar: Joi.string().required().custom(validationUrl),
   }),
 });

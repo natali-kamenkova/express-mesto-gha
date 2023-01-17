@@ -1,12 +1,10 @@
 const Card = require('../models/card');
-
 const NotFound = require('../errors/NotFound'); // 404
 const BadRequest = require('../errors/BadRequest'); // 400
 const NotAllowedError = require('../errors/NotAllowedError'); // 403
 
 const {
   OK,
-  CREATED,
 } = require('../constants');
 
 // создание карточки
@@ -15,12 +13,12 @@ module.exports.createCard = (req, res, next) => {
   const ownerId = req.user._id;
 
   Card.create({ name, link, owner: ownerId })
-    .then((card) => res.status(CREATED).send(card))
+    .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequest('Переданы некорректные данные'));
       } else {
-        next(err); // создаст 500
+        next(err);
       }
     });
 };
