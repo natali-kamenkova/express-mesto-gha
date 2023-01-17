@@ -5,7 +5,7 @@ const User = require('../models/user');
 const NotFound = require('../errors/NotFound'); // 404
 const BadRequest = require('../errors/BadRequest'); // 400
 const ConflictError = require('../errors/ConflictError'); // 409
-
+const NotAuthError = require('../errors/NotAuthError');
 const {
   OK,
   SALT,
@@ -117,7 +117,7 @@ module.exports.updateAvatar = (req, res, next) => {
       }
     });
 };
-/*
+
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   User.findOne({ email })
@@ -142,21 +142,9 @@ module.exports.login = (req, res, next) => {
             { expiresIn: '7d' },
           );
           // вернём токен
-          res.send({ token });
+          res.status(OK).send({ message: 'Добро пожаловать', token });
         })
         .catch(next);
-    })
-    .catch(next);
-}; */
-module.exports.login = (req, res, next) => {
-  const { email, password } = req.body;
-  return User
-    .findUserByCredentials(email, password)
-    .then((user) => {
-      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
-        expiresIn: '7d',
-      });
-      res.send({ token });
     })
     .catch(next);
 };
