@@ -1,8 +1,7 @@
 const express = require('express');
-
 const mongoose = require('mongoose');
-const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const { errors } = require('celebrate');
 const router = require('./routes');
 const handlerErrors = require('./middlewares/handlerErrors');
@@ -38,6 +37,6 @@ async function connect() {
     console.log(error);
   }
 }
-app.use(errors);
+app.use(errors());
 app.use(handlerErrors);
 connect();

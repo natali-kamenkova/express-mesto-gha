@@ -57,6 +57,7 @@ module.exports.getUserById = (req, res, next) => {
 };
 
 // создание пользователя
+
 module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
@@ -81,9 +82,9 @@ module.exports.createUser = (req, res, next) => {
       }
       if (error.code === MONGO_DUPLICATE_ERROR_CODE) {
         next(new ConflictError('Пользователь с таким email уже существует'));
+      } else {
+        next(error);
       }
-      console.log(error.name);
-      next(error);
     });
 };
 
