@@ -73,6 +73,7 @@ module.exports.createUser = (req, res, next) => {
       _id: user._id,
       name: user.name,
       about: user.about,
+      avatar: user.avatar,
       email: user.email,
     }))
 
@@ -123,6 +124,7 @@ module.exports.login = (req, res, next) => {
   User.findOne({ email })
     .select('+password')
     .then((user) => {
+      console.log(user);
       if (!user) {
         throw new NotAuthError('Неправильные почта или пароль');
       }
@@ -132,6 +134,7 @@ module.exports.login = (req, res, next) => {
           if (!matched) {
             throw new NotAuthError('Неправильные почта или пароль');
           }
+
           return user;
         })
         .then(() => {
@@ -142,6 +145,7 @@ module.exports.login = (req, res, next) => {
             { expiresIn: '7d' },
           );
           // вернём токен
+          console.log(token);
           res.status(OK).send({ message: 'Добро пожаловать', token });
         })
         .catch(next);

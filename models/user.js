@@ -24,20 +24,20 @@ const userSchema = new mongoose.Schema({ // схема пользователя
       message: 'Ссылка должна быть валидной',
       default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
     },
-    email: { // почта пользователя, уникальное значение
-      type: String,
-      required: true,
-      unique: true,
-      validate: {
-        validator: validator.isEmail,
-        message: 'Почта должна быть валидной!',
-      },
+  },
+  email: { // почта пользователя, уникальное значение
+    type: String,
+    required: true,
+    unique: true,
+    validate: {
+      validator: validator.isEmail,
+      message: 'Почта должна быть валидной!',
     },
-    password: { // пароль пользователя для входа
-      type: String,
-      required: true,
-      select: false, // хеш пароля пользователя не будет возвращаться из базы
-    },
+  },
+  password: { // пароль пользователя для входа
+    type: String,
+    required: true,
+    select: false, // хеш пароля пользователя не будет возвращаться из базы
   },
 });
 
