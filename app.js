@@ -15,9 +15,6 @@ require('dotenv').config();
 
 app.use(express.json());
 
-app.post('/signin', validationLogin, login);
-app.post('/signup', validationCreateUser, createUser);
-app.use(router);
 app.use(helmet());
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -26,6 +23,9 @@ const limiter = rateLimit({
   legacyHeaders: false,
 });
 app.use(limiter);
+app.post('/signin', validationLogin, login);
+app.post('/signup', validationCreateUser, createUser);
+app.use(router);
 async function connect() {
   try {
     await mongoose.set('strictQuery', false);
