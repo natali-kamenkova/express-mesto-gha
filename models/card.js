@@ -1,5 +1,6 @@
 const validator = require('validator');
 const mongoose = require('mongoose');
+
 const { Schema } = mongoose;
 
 const cardSchema = new Schema({
