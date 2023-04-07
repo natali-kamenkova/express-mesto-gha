@@ -1,7 +1,7 @@
 const validator = require('validator');
 const mongoose = require('mongoose');
 
-const {Schema} = mongoose;
+const { Schema } = mongoose;
 
 const cardSchema = new Schema({
   name: { // имя карточки, строка от 2 до 30 символов, обязательное поле
@@ -24,7 +24,7 @@ const cardSchema = new Schema({
     required: [true, 'Поле обязательно'],
   },
   likes: { // список, массив ObjectId, по умолчанию — пустой массив (поле default);
-    type: [{type: Schema.Types.ObjectId, ref: 'user'}],
+    type: [{ type: Schema.Types.ObjectId, ref: 'user' }],
     default: [],
   },
   createdAt: { // дата создания, тип Date, значение по умолчанию Date.now.
