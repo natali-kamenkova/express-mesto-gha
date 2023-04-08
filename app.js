@@ -50,9 +50,9 @@ const limiter = rateLimit({
   legacyHeaders: false,
 });
 app.use(limiter);
+app.use(handlerRequestLogger)
 app.post('/signin', validationLogin, login);
 app.post('/signup', validationCreateUser, createUser);
-app.use(handlerRequestLogger)
 app.use(router);
 app.use(handlerErrorLogger)
 app.use(errors());
