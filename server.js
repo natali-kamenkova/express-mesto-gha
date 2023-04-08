@@ -1,11 +1,11 @@
 require('dotenv').config();
-const { app, DB } = require('./app');
+const { app, MONGO_URL } = require('./app');
 const mongoose = require("mongoose");
 const { PORT = 3000 } = process.env;
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
-  console.log(`App connect to dateBase ${DB}`);
+  console.log(`App connect to dateBase ${MONGO_URL}`);
 });
 
 async function connect() {
