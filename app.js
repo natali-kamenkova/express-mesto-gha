@@ -18,6 +18,9 @@ const whiteList = [
   'https://localhost:3000',
   'http://localhost:3000',
   'localhost:3000',
+  'https://natali.nomoredomains.monster',
+  'http://natali.nomoredomains.monster',
+  'natali.nomoredomains.monster'
 ];
 
 const corsOptions = {
