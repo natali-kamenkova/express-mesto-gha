@@ -18,8 +18,11 @@ const allowedCors = [
   'https://localhost:3000',
   'http://localhost:3000',
   'localhost:3000',
+  'https://api.natali.nomoredomains.monster',
+  'http://api.natali.nomoredomains.monster',
   'https://natali.nomoredomains.monster',
   'http://natali.nomoredomains.monster',
+  'api.natali.nomoredomains.monster',
   'natali.nomoredomains.monster'
 ];
 
