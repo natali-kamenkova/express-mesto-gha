@@ -11,9 +11,28 @@ const { createUser, login } = require('./controllers/users');
 const { MONGO_URL = 'mongodb://localhost:27017/mestodb' } = process.env;
 
 const app = express();
+
+const whiteList = [
+  'https://praktikum.tk',
+  'http://praktikum.tk',
+  'https://localhost:3000',
+  'http://localhost:3000',
+  'localhost:3000',
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (whiteList.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+};
+
 require('dotenv').config();
 
-app.use(cors())
+app.use(cors(corsOptions))
 app.use(express.json());
 app.use(helmet());
 const limiter = rateLimit({
