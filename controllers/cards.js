@@ -13,6 +13,7 @@ module.exports.createCard = (req, res, next) => {
   const ownerId = req.user._id;
 
   Card.create({ name, link, owner: ownerId })
+    .then((card) => Card.populate(card, 'owner'))
     .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
