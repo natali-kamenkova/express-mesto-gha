@@ -1,5 +1,5 @@
 const express = require('express');
-const corsExpress = require('cors-express');
+const cors = require('cors');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -14,7 +14,7 @@ const { PORT = 3000, MONGO_URL = 'mongodb://localhost:27017/mestodb' } = process
 const app = express();
 require('dotenv').config();
 
-app.use(corsExpress())
+app.use(cors())
 app.use(express.json());
 app.use(helmet());
 const limiter = rateLimit({
