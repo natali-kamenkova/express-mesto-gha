@@ -12,7 +12,7 @@ const { MONGO_URL = 'mongodb://localhost:27017/mestodb' } = process.env;
 
 const app = express();
 
-const whiteList = [
+const allowedCors = [
   'https://praktikum.tk',
   'http://praktikum.tk',
   'https://localhost:3000',
@@ -23,19 +23,16 @@ const whiteList = [
   'natali.nomoredomains.monster'
 ];
 
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (whiteList.indexOf(origin) !== -1 || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-};
-
 require('dotenv').config();
 
-app.use(cors(corsOptions))
+app.use(cors(function (origin, callback) {
+  if (allowedCors.includes(origin)) {
+    callback(null, true);
+  } else {
+    callback(new Error('CORS blocked this origin'));
+  }
+}));
+
 app.use(express.json());
 app.use(helmet());
 const limiter = rateLimit({
