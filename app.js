@@ -26,16 +26,20 @@ const allowedCors = [
   'natali.nomoredomains.monster'
 ];
 
+const corsFunction = {
+  origin: function (origin, callback) {
+    console.log(origin);
+    if (allowedCors.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Blocked by CORS'));
+    }
+  },
+};
+
 require('dotenv').config();
 
-app.use(cors(function (origin, callback) {
-  console.log(origin);
-  if (allowedCors.indexOf(origin) !== -1 || !origin) {
-    callback(null, true);
-  } else {
-    callback(new Error('Not allowed by CORS'));
-  }
-}));
+app.use(cors(corsFunction));
 
 app.use(express.json());
 app.use(helmet());
