@@ -51,6 +51,11 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 app.use(handlerRequestLogger)
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
 app.post('/signin', validationLogin, login);
 app.post('/signup', validationCreateUser, createUser);
 app.use(router);
