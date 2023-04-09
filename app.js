@@ -39,7 +39,7 @@ const corsFunction = {
 
 require('dotenv').config();
 
-//app.use(cors(corsFunction));
+app.use(cors(corsFunction));
 
 app.use(express.json());
 app.use(helmet());
