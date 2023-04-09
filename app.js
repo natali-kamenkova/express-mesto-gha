@@ -1,14 +1,15 @@
 const express = require('express');
+const mongoose = require("mongoose");
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const { errors } = require('celebrate');
+const {errors} = require('celebrate');
 const router = require('./routes');
 const handlerErrors = require('./middlewares/handlerErrors');
-const { handlerRequestLogger, handlerErrorLogger } = require('./middlewares/logger');
-const { validationCreateUser, validationLogin } = require('./middlewares/validation');
-const { createUser, login } = require('./controllers/users');
-const { MONGO_URL = 'mongodb://localhost:27017/mestodb' } = process.env;
+const {handlerRequestLogger, handlerErrorLogger} = require('./middlewares/logger');
+const {validationCreateUser, validationLogin} = require('./middlewares/validation');
+const {createUser, login} = require('./controllers/users');
+const {PORT = 3000, MONGO_URL = 'mongodb://localhost:27017/mestodb'} = process.env;
 
 const app = express();
 
@@ -37,6 +38,19 @@ const corsFunction = {
   },
 };
 
+async function connect() {
+  try {
+    await mongoose.set('strictQuery', false);
+    console.log(`connecting to ${MONGO_URL}`);
+    await mongoose.connect(MONGO_URL);
+    console.log(`server connect to ${MONGO_URL}`);
+    await app.listen(PORT);
+    console.log(`server listen port ${PORT}`);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 require('dotenv').config();
 
 app.use(cors(corsFunction));
@@ -62,4 +76,4 @@ app.use(router);
 app.use(handlerErrorLogger)
 app.use(errors());
 app.use(handlerErrors);
-module.exports = { app, MONGO_URL };
+connect();
